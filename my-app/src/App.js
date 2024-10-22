@@ -2,41 +2,60 @@ import React, { useState } from 'react';
 import styles from './App.module.css';
 
 export const App = () => {
-	const [operand1, setOperand1] = useState(''); 
-	const [operator, setOperator] = useState('');
-	const [operand2, setOperand2] = useState('');
-	const [isResult, setIsResult] = useState(false);
+	const [calc, setCalc] = useState({
+		operand1: '',
+		operand2: '',
+		operator: '',
+		isResult: false,
+	});
 
 	const NUMS = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'];
 
 	// Обработчик клика по цифре
 	const handleNumClick = (num) => {
-		if (isResult) {
+		if (calc.isResult) {
 			// Если уже есть результат, сбрасываем всё перед новым вводом
-			setOperand1(num);
-			setOperator('');
-			setOperand2('');
-			setIsResult(false);
+			setCalc({
+				operand1: num,
+				operator: '',
+				operand2: '',
+				isResult: false,
+			});
 		} else {
-			if (!operator) {
+			if (!calc.operator) {
 				// Если оператор еще не был выбран, то обновляем operand1
-				setOperand1(operand1 + num);
+				setCalc((prevState)=>({
+					...prevState,
+					operand1: prevState.operand1 + num,
+				}))
+				
 			} else {
 				// Если оператор уже был выбран, обновляем operand2
-				setOperand2(operand2 + num);
+				setCalc((prevState)=>({
+					...prevState,
+					operand2: prevState.operand2 + num,
+				}))
 			}
 		}
 	};
 
 	// Обработчик кликов по операторам (+ и -)
 	const handleOperatorClick = (op) => {
-		if (operand1 && !operand2) {
-			if (isResult) {
+		if (calc.operand1 && !calc.operand2) {
+			if (calc.isResult) {
 				// если на табло результат
-				setIsResult(false); // снимаем флаг результата (перестает зеленым)
-				setOperator(op); // вводим оператор
+				setCalc((prevState)=>({
+					...prevState,
+					isResult: false, // снимаем флаг результата (перестает зеленым)
+					operator: op, // вводим оператор
+				}))
+				
 			} else {
-				setOperator(op);
+				setCalc((prevState)=>({
+					...prevState,
+					operator: op,
+				}))
+				
 			}
 		}
 	};
@@ -44,30 +63,36 @@ export const App = () => {
 	// Обработчик клика по кнопке "=" для вычисления результата
 	const calculateResult = () => {
 		//высисляем если введены операнды и оператор, иначе вычислять нечего
-		if (operand1 && operator && operand2) { 
-			const num1 = Number(operand1);
-			const num2 = Number(operand2);
+		if (calc.operand1 && calc.operator && calc.operand2) {
+			const num1 = Number(calc.operand1);
+			const num2 = Number(calc.operand2);
 			let result;
 
-			if (operator === '+') {
+			if (calc.operator === '+') {
 				result = num1 + num2;
-			} else if (operator === '-') {
+			} else if (calc.operator === '-') {
 				result = num1 - num2;
 			}
 
-			setOperand1(String(result)); // Результат будет сохранен в operand1
-			setOperator(''); // Сбрасываем оператор
-			setOperand2(''); // Очищаем второй операнд
-			setIsResult(true); // Отмечаем, что результат показан
+			setCalc({
+				operand1: String(result), // Результат будет сохранен в operand1
+				operator: '', // Сбрасываем оператор
+				operand2: '', // Очищаем второй операнд
+				isResult: true, // Отмечаем, что результат показан
+			})
+			
 		}
 	};
 
 	// Обработчик сброса
 	const resetCalculator = () => {
-		setOperand1('');
-		setOperator('');
-		setOperand2('');
-		setIsResult(false);
+		setCalc({
+			operand1: '',
+			operator: '',
+			operand2: '',
+			isResult: false,
+		})
+		
 	};
 
 	return (
@@ -75,11 +100,11 @@ export const App = () => {
 			{/* Дисплей для вывода операции и результата */}
 			<div
 				className={styles.display}
-				style={{ color: isResult ? 'green' : 'black' }}
+				style={{ color: calc.isResult ? 'green' : 'black' }}
 			>
-				{operand1}
-				{operator}
-				{operand2}
+				{calc.operand1}
+				{calc.operator}
+				{calc.operand2}
 			</div>
 
 			{/* Кнопки цифрами */}
